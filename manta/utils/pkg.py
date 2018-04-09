@@ -1,10 +1,13 @@
 import os, pkgutil
 
-def run_dir(func_name=""):
+def run_dir(path, func_name=""):
     """
         This function *MUST* in the __init__.py
     """
-    for loader, mod_name, is_pkg in pkgutil.iter_modules([os.path.dirname(__file__)]):
+    if not isinstance(path, list):
+        path = [path]
+
+    for loader, mod_name, is_pkg in pkgutil.iter_modules(path):
         try:
             mod = loader.find_module(mod_name).load_module(mod_name)
             for item in dir(mod):
