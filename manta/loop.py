@@ -9,7 +9,6 @@ class Loop(object):
     _TASK_QUEUE      = None
     _TASK_QUEUE_SIZE = 0
     _THREAD_SIZE     = 1
-    _LOCK            = threading.Lock()
     _THREAD_POOL     = None
     _STARTED         = False
 
@@ -23,7 +22,7 @@ class Loop(object):
 
     @classmethod
     def _new_task(cls, func, timeout=0, interval=0, *args, **kwargs):
-        return Task(func, timeout, interval, *args, **kwargs))
+        return Task(func, timeout, interval, *args, **kwargs)
 
     @classmethod
     def _new_period_task(cls, func, interval, *args, **kwargs):
