@@ -101,3 +101,6 @@ ENV/
 .mypy_cache/
 .vscode/
 test/__pycache__
+manta/__pycache__
+manta/driver/__pycache__
+manta/utils/__pycache__
