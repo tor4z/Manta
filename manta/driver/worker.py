@@ -1,12 +1,19 @@
+from queue import Empty
+
 class Worker(object):
-    def __init__(self, queue, lock, name):
+    def __init__(self, queue, lock, name, event, timeout=0.05):
         self._lock = lock
         self._queue = queue
         self._name  = name
+        self._release = event
+        self._timeout = timeout
 
-    def _get_task(self):
-        self._lock.acquire(*args, **kwargs)
-        task = self._queue.get(*args, **kwargs)
+    def _get_task(self, block=True):
+        self._lock.acquire()
+        try:
+            task = self._queue.get(block, self._timeout)
+        except Empty:
+            task = None
         self._lock.release()
         return task
 
@@ -30,11 +37,16 @@ class Worker(object):
         return task.runable
 
     def start(self):
-        task = self._get_task(block = True)
-        if self._runable(task):
-            task.do()
-            if task.is_period:
-                self._put_back_period(task)
-        else:
-            self._put_back(task)
-        self._task_done(task)
+        while True:
+            task = self._get_task(block = True)
+            if task is not None:
+                if self._runable(task):
+                    task.do()
+                    if task.is_period:
+                        self._put_back_period(task)
+                else:
+                    self._put_back(task)
+                self._task_done(task)
+            else:
+                if self._release.is_set():
+                    return
