@@ -31,7 +31,7 @@ class TestTask(unittest.TestCase):
 
     def test_task_update_time(self):
         import time
-        task = Task(func, 0, 1, 1, callback=func_callback)
+        task = Task(func, 0, 0.05, 1, callback=func_callback)
         task.update_time()
-        time.sleep(1)
+        time.sleep(0.05)
         self.assertTrue(task.runable)
