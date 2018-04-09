@@ -8,11 +8,13 @@ class Task(object):
         self.timeout = timeout
         self._interval = interval
         self._func = func
-        self._callback = kwargs.pop("callback")
         self._args = args
         self._kwargs = kwargs
         self._run_time_ = 0 
         self._time_updated = False
+        self._callback = kwargs.get("callback")
+        if self._callback:
+            kwargs.pop("callback")
         self.update_time()
 
     def update_time(self):
