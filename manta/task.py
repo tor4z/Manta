@@ -8,7 +8,7 @@ class Task(object):
         self.timeout = timeout
         self._interval = interval
         self._func = func
-        self._callback = kwargs.get("callback")
+        self._callback = kwargs.pop("callback")
         self._args = args
         self._kwargs = kwargs
         self._run_time_ = 0 
@@ -39,14 +39,14 @@ class Task(object):
         if self.is_period:
             if other.is_period: return 0
             else:                 return -1
-        else if self.is_timeout:
+        elif self.is_timeout:
             if other.is_period:  return 1
             elif other.is_timeout: return 0
             else:                  return -1
         else:
             if other.is_period or other.is_timeout:
                 return 1
-            else
+            else:
                 return 0
     
     def __lt__(self, other):
@@ -66,4 +66,6 @@ class Task(object):
     def do(self):
         res = self._func(*self._args, **self._kwargs)
         if self._callback is not None:
-            self._callback(res)
+            return self._callback(res)
+        else:
+            return res
