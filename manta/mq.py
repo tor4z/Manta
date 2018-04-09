@@ -42,8 +42,8 @@ class Exchange(object):
 
     def _comsume(self):
         if self._body and self._channels:
-        for chan in self._channels:
-            chan.publish(self._body)
+            for chan in self._channels:
+                chan.publish(self._body)
 
 
 class MessageQueue(object):
