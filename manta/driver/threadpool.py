@@ -17,7 +17,6 @@ class WorkingTread(Thread):
 class ThreadPool(object):
     def __init__(self, size, queue):
         self._size = size
-        self._nloops = range(self._size)
         self._queue = queue
         self._lock = Lock()
         self._release = Event()
@@ -25,20 +24,21 @@ class ThreadPool(object):
         self._join = False
 
     def _init_tp(self):
-        for i in self._nloops:
+        for i in range(self._size):
             name = "manta_worker_{0}".format(i)
             worker = WorkingTread(self._queue, self._lock, name, self._release)
             self._threadpool.append(worker)
 
     def start(self):
         self._init_tp()
-        for i in self._nloops:
-            self._threadpool[i].start()
+        for thread in self._threadpool:
+            thread.start()
 
     def join(self):
         if not self._join:
-            for i in self._nloops:
-                self._threadpool[i].join()
+            for thread in self._threadpool:
+                thread.join()
+                del thread
             self._join = True
 
     def release(self):
