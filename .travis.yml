@@ -5,7 +5,7 @@ python:
     - 3.4
 
 script:
-    - ./test.sh
+    - bash ./test.sh
 
 notifications:
 email: false
