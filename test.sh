@@ -1,5 +1,5 @@
 #! /usr/bin/bash
+export PYTHONAPTH="$PYTHONAPTH:$(pwd)"
 cd test 
-export PYTHONAPTH="$PYTHONAPTH:${cwd}"
 python -m unittest discover --pattern=*.py -v
 cd ..
