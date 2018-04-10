@@ -6,3 +6,6 @@ class InvalidArgExp(Exception):
 
 class MethodShouldBeOverrideExp(Exception):
     pass
+
+class LoopNotInitExp(Exception):
+    pass
