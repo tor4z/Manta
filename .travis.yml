@@ -1,0 +1,11 @@
+sudo: required
+language: python
+python:
+    - 2.6
+    - 3.4
+
+script:
+    - ./test.sh
+
+notifications:
+email: false
