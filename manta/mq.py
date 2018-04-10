@@ -9,7 +9,6 @@ class Channel(object):
     def __init__(self, name="", exchange=None):
         self.name = name or gen_name()
         self._exchange = exchange
-        self._body = None
         self._func = None
 
     def set_exchange(self, exchange):
@@ -19,12 +18,11 @@ class Channel(object):
         self._func = func
 
     def publish(self, body):
-        self._body = body
-        Loop.call(self._comsume)
+        self._exchange.publish(body)
 
-    def _comsume(self):
-        if self._func and self._body:
-            self._func(self._body)
+    def execute(self, body):
+        if self._func:
+            self._func(body)
 
 class Exchange(object):
     def __init__(self, name=""):
@@ -38,12 +36,11 @@ class Exchange(object):
 
     def publish(self, body):
         self._body = body
-        Loop.call(self._comsume)
+        Loop.call(self.execute)
 
-    def _comsume(self):
-        if self._body and self._channels:
-            for chan in self._channels:
-                chan.publish(self._body)
+    def execute(self):
+        for chan in self._channels:
+            chan.execute(self._body)
 
 
 class MessageQueue(object):
@@ -64,6 +61,8 @@ class MessageQueue(object):
         if not chan:
             chan = Channel(name)
             cls._CHANNELS[name] = chan
+            if exchange is None: 
+                exchange = Exchange()    
             exchange.bind(chan)
         return chan
 
@@ -76,6 +75,6 @@ class MessageQueue(object):
         return exch
 
     @classmethod
-    def start(cls, thread_size=1, task_queue_size=0):
+    def start(cls, thread_size=1, force=True, _test_timeout=0):
         Loop.start(thread_size = thread_size, 
-                   task_queue_size= task_queue_size)
+                    _test_timeout = _test_timeout, force=force)
