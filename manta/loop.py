@@ -1,24 +1,21 @@
 from manta.driver.threadpool import ThreadPool
-from manta.exp import LoopNotInstanlizeExp, InvalidArgExp
+from manta.exp import LoopNotInstanlizeExp, InvalidArgExp, LoopNotInitExp
 from manta.task import Task
 from queue import PriorityQueue
 from threading import Timer
 
 class Loop(object):
     _INSTANCE        = None
-    _TASK_QUEUE      = None
-    _TASK_QUEUE_SIZE = 0
+    _TASK_QUEUE      = PriorityQueue()
     _THREAD_SIZE     = 1
     _THREAD_POOL     = None
     _STARTED         = False
+    _INITIALIZE      = False
 
     @classmethod
-    def _initialize(cls):
-        if cls._INSTANCE is None: raise LoopNotInstanlizeExp
-        if cls._TASK_QUEUE is None:
-            cls._TASK_QUEUE = PriorityQueue(cls._TASK_QUEUE_SIZE)
-        if cls._THREAD_POOL is None:
-            cls._THREAD_POOL = ThreadPool(cls._THREAD_SIZE)
+    def _initialize(cls, force=False):
+        if cls._THREAD_POOL is None or force:
+            cls._THREAD_POOL = ThreadPool(cls._THREAD_SIZE, cls._TASK_QUEUE)
 
     @classmethod
     def _new_task(cls, func, timeout=0, interval=0, *args, **kwargs):
@@ -45,22 +42,28 @@ class Loop(object):
     @classmethod
     def call(cls, func, *args, **kwargs):
         task = cls._new_task(func, *args, **kwargs)
-        cls.add_task(tash)
+        cls.add_task(task)
     
     @classmethod
     def add_task(cls, task):
         cls._TASK_QUEUE.put(task)
 
     @classmethod
-    def add_task(cls, task):
-        cls._TASK_QUEUE.put(task)
+    def initialize(cls, thread_size=1, force=False):
+        if not cls._INITIALIZE or force:
+            cls._THREAD_SIZE = thread_size
+            cls._initialize(force=True)
+            cls._INITIALIZE = True
 
     @classmethod
-    def start(cls, thread_size=1, task_queue_size=0):
-        if not cls._STARTED:
-            cls._TASK_QUEUE_SIZE = queue_size
-            cls._THREAD_SIZE = thread_size
-            cls._initialize()
+    def start(cls, thread_size=1, force=False, _test_timeout=0):
+        if not cls._STARTED or force:
+            cls.initialize(thread_size, force)
             cls._THREAD_POOL.start()
+            if _test_timeout:
+                import time
+                time.sleep(_test_timeout)
+                cls._THREAD_POOL.release()
+            cls._STARTED=True
             cls._THREAD_POOL.join()
             cls._TASK_QUEUE.join()
