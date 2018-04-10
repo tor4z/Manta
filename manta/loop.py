@@ -18,16 +18,16 @@ class Loop(object):
             cls._THREAD_POOL = ThreadPool(cls._THREAD_SIZE, cls._TASK_QUEUE)
 
     @classmethod
-    def _new_task(cls, func, timeout=0, interval=0, *args, **kwargs):
-        return Task(func, timeout, interval, *args, **kwargs)
+    def _new_task(cls, func, *args, **kwargs):
+        return Task(func, *args, **kwargs)
 
     @classmethod
     def _new_period_task(cls, func, interval, *args, **kwargs):
-        return cls._new_task(func, 0, interval, *args, **kwargs)
+        return cls._new_task(func, interval = interval, *args, **kwargs)
 
     @classmethod
     def _new_timeout_task(cls, func, timeout, *args, **kwargs):
-        return cls._new_task(func, timeout, 0, *args, **kwargs)
+        return cls._new_task(func, timeout = timeout, *args, **kwargs)
 
     @classmethod
     def periodic_call(cls, func, interval, *args, **kwargs):
@@ -66,4 +66,3 @@ class Loop(object):
                 cls._THREAD_POOL.release()
             cls._STARTED=True
             cls._THREAD_POOL.join()
-            cls._TASK_QUEUE.join()

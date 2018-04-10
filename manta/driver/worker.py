@@ -37,7 +37,7 @@ class Worker(object):
         return task.runable
 
     def start(self):
-        while True:
+        while not self._release.is_set():
             task = self._get_task(block = True)
             if task is not None:
                 if self._runable(task):
@@ -47,6 +47,3 @@ class Worker(object):
                 else:
                     self._put_back(task)
                 self._task_done(task)
-            else:
-                if self._release.is_set():
-                    return

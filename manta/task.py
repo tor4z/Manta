@@ -4,18 +4,22 @@ class Task(object):
     """
     Priority of the task:normal_task > timeout_task > period_task
     """
-    def __init__(self, func, timeout=0, interval=0, *args, **kwargs):
-        self.timeout = timeout
-        self._interval = interval
+    def __init__(self, func, *args, **kwargs):
         self._func = func
         self._args = args
         self._kwargs = kwargs
         self._run_time_ = 0 
         self._time_updated = False
         self._callback = kwargs.get("callback")
-        if self._callback:
-            kwargs.pop("callback")
+        self.timeout = kwargs.get("timeout", 0)
+        self._interval = kwargs.get("interval", 0)
         self.update_time()
+        if kwargs.get("callback") is not None:
+            kwargs.pop("callback")
+        if kwargs.get("timeout") is not None:
+            kwargs.pop("timeout")
+        if kwargs.get("interval") is not None:
+            kwargs.pop("interval")
 
     def update_time(self):
         if not self._time_updated or self.is_period:
@@ -35,7 +39,7 @@ class Task(object):
 
     @property
     def is_normal(self):
-        return not self.is_period or not self.is_timeout
+        return not (self.is_period or self.is_timeout)
 
     def _cmp(self, other):
         if self.is_period:
